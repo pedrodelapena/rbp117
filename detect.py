@@ -1,21 +1,34 @@
 import rospy
 from sensor_msgs.msg import Image
+import cv2
 
 class Detect()
 
     def capture(image):
-        self.image_buffer.append(image)
-	    
+        try:
+            image= bridge.imgmsg_to_cv2(image, "bgr8")
+            self.image_buffer.append(image)
+            
+	        cv2.imshow("visual", cv_image)
+		    cv2.waitKey(0)
+		    #para me mostrar um feed constante, waitkey deve ser zero?
+		    #lembrar de comentar ambas essas linhas para o release final
+		    
+		except CvBridgeError as e:
+		    print("Erro em Detect: "+ e)
+		    
 	def recon():
 	
 	    #começar analisando da imagem mais recente, abortar se eu conseguir confirmação visual do que eu procuro
 	    
 	    still_work_to_do= True
 	    
-	    while(still_work_to_do or len(image_buffer) != 0)
-	        #aqui vai o código de reconhecimento de imagem
+	    while(still_work_to_do or len(self.image_buffer) != 0)
 	        def scope():
+	        
 	            #inicialmente tratar a imagem para que seja mais rápido/simples de trabalhar
+	            current=self.image_buffer[-1]
+	            self.image_buffer.pop(-1)
 	        
 	            #a cada check de consistência dar um return se falhar
 	            
@@ -42,8 +55,7 @@ class Detect()
                 still_work_to_do= False
 	        scope()
 	        
-	        image_buffer.pop(-1)
-	        #if step
+        image_buffer=[]
 	        
 	def update():
 	    self.image_buffer.append(image)

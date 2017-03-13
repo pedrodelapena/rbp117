@@ -24,7 +24,7 @@ def init():
 
 	rospy.init_node("rbpu_main")
 	memap= MemoryMap() 
-	movement= Movement(memap)
+	#movement= Movement(memap)
 	detect= Detect(memap)
 	
 	recebedor= rospy.Subscriber("/camera/image_raw", Image, recebe, queue_size=10, buff_size = 2**24)
