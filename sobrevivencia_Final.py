@@ -29,7 +29,7 @@ class Laser:
 
 
 
-if __name__=="__main__":
+def sobrevivencia():
 
 
 	rospy.init_node("aula7")
@@ -38,27 +38,20 @@ if __name__=="__main__":
 	rospy.Subscriber("/scan", LaserScan, laser.bufferize, queue_size = 1)
 
 
-	while not rospy.is_shutdown():
-		temp= laser.getClosest()
-		print("temp")
-		velocidade = Twist(Vector3(0, 0, 0), Vector3(0, 0, 0))
+	temp= laser.getClosest()
+	print("diatancia,angulo",temp)
+	velocidade = Twist(Vector3(0, 0, 0), Vector3(0, 0, 0))
+	velocidade_saida.publish(velocidade)
+
+	if temp[1] < 0.4 and (temp[0] < 45 or temp[0]> 315) :
+
+
+
+
+		velocidade = Twist(Vector3(0, 0, 0), Vector3(0, 0, 1))
 		velocidade_saida.publish(velocidade)
-		print(temp[1])
+		rospy.sleep(2.0)
 
-		if temp[1] < 0.4 and (temp[0] < 45 or temp[0]> 315) :
-
-
-
-
-			velocidade = Twist(Vector3(0, 0, 0), Vector3(0, 0, 1))
-			velocidade_saida.publish(velocidade)
-			rospy.sleep(2.0)
-
-		elif temp[1] < 0.4:
-				velocidade = Twist(Vector3(0.5, 0, 0), Vector3(0, 0, 0))
-				velocidade_saida.publish(velocidade)
-		rospy.sleep(1.0)
-
-
-
-# distancia minima 0.7
+	elif temp[1] < 0.4:
+		velocidade = Twist(Vector3(1, 0, 0), Vector3(0, 0, 0))
+		velocidade_saida.publish(velocidade)
