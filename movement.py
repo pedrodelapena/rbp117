@@ -1,5 +1,6 @@
 import rospy
 from geometry_msgs.msg import Twist, Vector3, Pose
+from laser import Laser
 
 class Movement():
     
@@ -8,12 +9,27 @@ class Movement():
         self.move= rospy.Publisher("/cmd_vel", Twist, queue_size = 1) #entender bem esta linha
         self.speed= Twist(Vector3(0,0,0), Vector3(0,0,0))
         self.memap= memap
+        self.laser= Laser()
+        self.abort_and_survive
     
     def update():
     
-        #think
+        self.laser.getClosest()
         
-        self.move.publish(speed)
+        	readings= self.laser.getClosest()
+	        #velocidade = Twist(Vector3(0, 0, 0), Vector3(0, 0, 0))
+	        #velocidade_saida.publish(velocidade)
+	        minimum_distance = 0.35
+
+	        if readings[1] < minimum_distance and (readings[0] < 45 or temp[0]> 315) :
+
+		        angular = Twist(Vector3(0, 0, 0), Vector3(0, 0, 1))
+		        self.move.publish(angular)
+
+	        elif temp[1] < Dm:
+		        go_forward= Twist(Vector3(0.5, 0, 0), Vector3(0, 0, 0))
+		        self.move.publish(go_forward)
+               
         
     def codedump():
     

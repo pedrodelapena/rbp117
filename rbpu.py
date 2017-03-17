@@ -13,8 +13,11 @@ def cycle():
 		while not rospy.is_shutdown():
 		
 
-			movement.update()
+			
 			detect.update()
+			movement.update()
+			
+			#dormir direito, calcular distancia gasto durante o ciclo basico e subtrair do tamanho do ciclo
 			rospy.sleep(CYCLEDURATION)
 
     except rospy.ROSInterruptException:
@@ -23,8 +26,8 @@ def cycle():
 def init():
 
 	rospy.init_node("rbpu_main")
-	memap= MemoryMap() 
-	#movement= Movement(memap)
+	memap= MemoryMap()
+	movement= Movement(memap)
 	detect= Detect(memap)
 	
 	recebedor= rospy.Subscriber("/camera/image_raw", Image, recebe, queue_size=10, buff_size = 2**24)
