@@ -40,24 +40,24 @@ if __name__=="__main__":
 
 	while not rospy.is_shutdown():
 		temp= laser.getClosest()
-		print(temp)
+		print("temp")
 		velocidade = Twist(Vector3(0, 0, 0), Vector3(0, 0, 0))
 		velocidade_saida.publish(velocidade)
-		if temp[1] > 0.4:
+		print(temp[1])
+
+		if temp[1] < 0.4 and (temp[0] < 45 or temp[0]> 315) :
 
 
-			if temp <180:
-				angulo = temp + 180
-			else:
-				angulo = temp -180
 
-			velocidade = Twist(Vector3(0, 0, 0), Vector3(0, 0, 2))
+
+			velocidade = Twist(Vector3(0, 0, 0), Vector3(0, 0, 1))
 			velocidade_saida.publish(velocidade)
-			rospy.sleep(2)
+			rospy.sleep(2.0)
 
-			velocidade = Twist(Vector3(1, 0, 0), Vector3(0, 0, 0))
-			velocidade_saida.publish(velocidade)
-		rospy.sleep(2)
+		elif temp[1] < 0.4:
+				velocidade = Twist(Vector3(0.5, 0, 0), Vector3(0, 0, 0))
+				velocidade_saida.publish(velocidade)
+		rospy.sleep(1.0)
 
 
 
