@@ -26,27 +26,21 @@ class Detect()
 	    while(still_work_to_do or len(self.image_buffer) != 0)
 	        def scope():
 	        
-	            #inicialmente tratar a imagem para que seja mais rápido/simples de trabalhar
-	            current=self.image_buffer[-1]
+	            src=self.image_buffer[-1]
 	            self.image_buffer.pop(-1)
-	        
-	            #a cada check de consistência dar um return se falhar
+	            #resizear a imagem aqui
+	            src = cv2.GaussianBlur(src, (5, 5), 0)
 	            
-	            #check1- Procurar por Vermelhos significativos
-	                reds= []
-	                
-	                if (len(reds) == 0):
-	                    return
-	            #check2- Procurar por Verdes significativos
-	                greens= []
-	                
-	                if (len(greens) == 0):
-	                    return
-	            #check3- Procurar por Azuis significativos
-	                blues= []
-	                
-	                if (len(blues) == 0):
-	                    return
+                reds= Detect.recon_shape(src, "red")
+                if (len(reds) == 0):
+                    return
+                greens= Detect.recon_shape(src, "green")
+                if (len(greens) == 0):
+                    return
+                blues= Detect.recon_shape(src, "blue")
+                if (len(blues) == 0):
+                    return
+                    
 	            #check4- Procurar por triângulos significativos
 	            
 	            #check5- Refinar para garantir que estamos certos de que esse é o alvo
@@ -56,8 +50,39 @@ class Detect()
 	        scope()
 	        
         image_buffer=[]
+        
+    def recon_red(src, color):
+        
+        color2int={
+            "red": 2,
+            "green": 1,
+            "blue": 0
+        }
+	    img= src[:,:,color2int[color]]
+
+	    ret, img = cv2.threshold(img, 200, 255, cv2.THRESH_BINARY)
+	    #depois setar valor mínimo embasado
+	    
+	    kernel= cv2.getStructuringElement(cv2.MORPH_RECT,(3,3))
+	    #posso alterar o kernel se achar que isso melhore minha detecção
+	    img= cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
+	    
+	    contours= cv2.findContours(img.copy(), CV_RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)	
+        contours= contours[0]
+        #Tomar cuidado com essa linha, fiz ela seguindo o pyimagesearch mas n'ao estou certo dela
+        
+        centers=[]
+        for c in contours:
+            mm= cv2.moments(c)
+            x= int(mm["m10"]/mm["m00"])
+            y= int(mm["m01"]/mm["m00"])
+            
+            centers.append((x, y))
+
+	    return centers
+    
 	        
-	def update():
+	def update(self):
 	    self.image_buffer.append(image)
 	    
 	    ##pensar com calma no conteúdo deste try catch
