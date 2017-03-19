@@ -27,12 +27,10 @@ def sigaobj(size, pos): #pos é uma tupla (x,y)
     velang = -turnSpeed * (float(distobj / (resol[0] / 2)))
     velrodas = [speed, velang]
 
-    CheckLado()
     print("Distancia eixo X",distobj)
     print(velrodas)
     NewSpeed(velrodas)
-    print(velang)
-    
+    print(velang)  
     
 def NewSpeed(velrodas):   
     vel = Twist(Vector3(velrodas[0],0,0),Vector3(0,0,velrodas[1]))    
@@ -43,16 +41,10 @@ def scanned(laser):
     global laserScan
     laserScan = laser.ranges
 
- def CheckLado(distobj);
- 	if distobj >= 0:
- 		return True
- 	else:
- 		return False
-
-#tem que arrumar aq
+#quando o objeto sumir chamar essa função
+#passar um bool como argumento dps de checar se o objeto estava, antes de sumir, no lado direito ou esquerdo
 def Search(right):        
     if(right):
         NewSpeed([0,-0.3])
     else:
         NewSpeed([0,0.3])
-
