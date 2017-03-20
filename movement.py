@@ -12,28 +12,35 @@ class Movement():
         self.laser= Laser()
         self.abort_and_survive
     
-    def update():
+    def update(self):
     
         self.laser.getClosest()
         
-        	readings= self.laser.getClosest()
+        readings= self.laser.getClosest()
 	        #velocidade = Twist(Vector3(0, 0, 0), Vector3(0, 0, 0))
 	        #velocidade_saida.publish(velocidade)
-	        minimum_distance = 0.35
+        minimum_distance = 0.35
 
-	        if readings[1] < minimum_distance and (readings[0] < 45 or temp[0]> 315) :
 
-		        angular = Twist(Vector3(0, 0, 0), Vector3(0, 0, 1))
-		        self.move.publish(angular)
+        if readings[1] < minimum_distance:
 
-	        elif temp[1] < Dm:
-		        go_forward= Twist(Vector3(0.5, 0, 0), Vector3(0, 0, 0))
-		        self.move.publish(go_forward)
+
+            if (readings[0] < 45 or readings[0]> 315) :
+                angular = Twist(Vector3(0, 0, 0), Vector3(0, 0, 1))
+                self.move.publish(angular)
+
+            else:
+            	go_forward= Twist(Vector3(0.5, 0, 0), Vector3(0, 0, 0))
+                self.move.publish(go_forward)
+
+
+
+
                
         
-    def codedump():
+	def codedump():
     
-        if len(media) != 0 and len(centro) != 0:
+		if len(media) != 0 and len(centro) != 0:
 				dif_x = media[0]-centro[0]
 				dif_y = media[1]-centro[1]
 				if math.fabs(dif_x)<30: #and math.fabs(dif_y)<50:
