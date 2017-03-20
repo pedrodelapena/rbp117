@@ -1,3 +1,5 @@
+# -*- coding:utf-8 -*-
+
 import rospy
 from geometry_msgs.msg import Twist, Vector3, Pose
 from laser import Laser
