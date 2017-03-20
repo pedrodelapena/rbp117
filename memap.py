@@ -4,7 +4,10 @@ class MemoryMap:
 ##Intuito
 
     def __init__(self):
-        self.
-        
-    def trajectory():
+        self.triangle= None
+        self.resolution= (640, 480)
 
+    #def trajectory():
+
+    def loadtriangle(triangle):
+    	self.triangle= triangle
