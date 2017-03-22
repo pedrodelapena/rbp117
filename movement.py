@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-
 import rospy
 from geometry_msgs.msg import Twist, Vector3, Pose
 from laser import Laser
@@ -13,7 +12,7 @@ class Movement:
         self.angular= Twist(Vector3(0,0,0), Vector3(0,0,1))
         self.memap= memap
         self.laser= Laser()
-        self.abort_and_survive
+        #self.abort_and_survive
     
     def update(self):
     
@@ -27,19 +26,23 @@ class Movement:
 
         if readings[1] < minimum_distance:
             #Emergência! Algo entrou no caminho!
+            print("desviar! :o")
+            print("/t detectado ruindade em: "+str(readings))
 
 
             if (readings[0] < 45 or readings[0]> 315) :
-                self.move.publish(self.angular)
+                self.move.publish(Twist(Vector3(-0.5,0,0), Vector3(0,0,1)))
 
             else:
-                self.move.publish(self.speed)
-        elif (memap.triangle is None or memap.triangle.age >= 30 ):
+                self.move.publish(Twist(Vector3(0.1,0,0), Vector3(0,0,2)))
+        elif (self.memap.triangle is None or self.memap.triangle.age >= 30 ):
             #Temos que procurar o triângulo!
+            print("cadê triângulo? :c")
             self.move.publish(self.angular)
 
         else:
             #Achamos o triângulo!
+            print("Triângulo achado! ATACAR! >:3")
             pos= self.memap.triangle.center
             resolution= self.memap.resolution
             turnSpeed= 2.2
