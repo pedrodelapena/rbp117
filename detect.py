@@ -10,8 +10,6 @@ from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
-import cv2
-
 from triangle import Triangle
 
 import itertools
@@ -31,7 +29,7 @@ class Detect:
         
         still_work_to_do= True
         
-        while(still_work_to_do or (len(self.image_buffer) != 0)):
+        while(still_work_to_do and (len(self.image_buffer) != 0)):
             def scope():
         
                 src=self.image_buffer[-1]
@@ -113,9 +111,9 @@ class Detect:
         combinations= itertools.combinations(alpha, 3);
         for combination in combinations:
                     
-            distance1= (combination[0][0]-combination[1][0])**2 + (combination[0][1]ay-combination[1][1])**2 #quadrado da distância
-            distance2= (combination[1][0]-combination[2][0])**2 + (combination[1][1]by-combination[2][1])**2
-            distance3= (combination[0][0]-combination[2][0])**2 + (combination[0][1]ay-combination[2][1])**2
+            distance1= (combination[0][0]-combination[1][0])**2 + (combination[0][1]-combination[1][1])**2 #quadrado da distância
+            distance2= (combination[1][0]-combination[2][0])**2 + (combination[1][1]-combination[2][1])**2
+            distance3= (combination[0][0]-combination[2][0])**2 + (combination[0][1]-combination[2][1])**2
             
             #d1+d2 deve ser d3
             if(abs(distance1+distance2 - distance3) < tolerance*distance3):
