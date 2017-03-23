@@ -26,15 +26,24 @@ class Movement:
 
         if readings[1] < minimum_distance:
             #Emergência! Algo entrou no caminho!
-            print("desviar! :o")
+            print("Algo esta proximo demais! :o")
             print("/t detectado ruindade em: "+str(readings))
 
 
-            if (readings[0] < 45 or readings[0]> 315) :
+            if readings[0] <= 45 : # 45 graus fica a esquerda dele? então roda para a direita
+                print("objeto a esquerda manobras evasivas para a direita!")
                 self.move.publish(Twist(Vector3(-0.5,0,0), Vector3(0,0,1)))
 
-            else:
-                self.move.publish(Twist(Vector3(0.1,0,0), Vector3(0,0,2)))
+
+            elif readings[0]>= 315: # 315 graus fica a direita dele? então ele roda para a esquerda
+                print("objeto a direita manobras evasivas para a esquerda!")
+            	self.move.publish(Twist(Vector3(-0.5,0,0), Vector3(0,0,-1)))
+
+            # else:
+            #     self.move.publish(Twist(Vector3(0.1,0,0), Vector3(0,0,2))) # não é mais necessario,espero.
+
+
+
         elif (self.memap.triangle is None or self.memap.triangle.age >= 30 ):
             #Temos que procurar o triângulo!
             print("cadê triângulo? :c")
