@@ -9,11 +9,14 @@ class Laser:
 	def __init__(self):
 		self.ranges=[0.1]*360
 		rospy.Subscriber("/scan", LaserScan, self.bufferize, queue_size= 1)
+		self.channel_open=True
 		
 	def bufferize(self, data):
-		self.ranges= list(data.ranges)
+		if (self.channel_open):
+			self.ranges= list(data.ranges)
 
 	def getClosest(self):
+		self.channel_open=False
 		copy=list(self.ranges)
 		try:
 			while(True):
@@ -21,4 +24,5 @@ class Laser:
 		except:
 			pass
 
+		self.channel_open=True
 		return [self.ranges.index(min(copy)), min(copy)]

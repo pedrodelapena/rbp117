@@ -9,24 +9,28 @@ class Movement:
     
         self.move= rospy.Publisher("/cmd_vel", Twist, queue_size = 1) #entender bem esta linha
         self.speed= Twist(Vector3(0.5,0,0), Vector3(0,0,0))
-        self.angular= Twist(Vector3(0,0,0), Vector3(0,0,1))
+        self.angular= Twist(Vector3(0,0,0), Vector3(0,0,0.5))
         self.memap= memap
         self.laser= Laser()
         #self.abort_and_survive
+
+    def stop(self):
+    	print("ASDASD")
+    	self.move.publish(Twist(Vector3(0.0,0.0,0.0), Vector3(0.0,0.0,0.0)))
+
     
     def update(self):
-        print("BATATA")
-    
+
         self.laser.getClosest()
         
         readings= self.laser.getClosest()
             #velocidade = Twist(Vector3(0, 0, 0), Vector3(0, 0, 0))
             #velocidade_saida.publish(velocidade)
-        minimum_distance = 0.35
+        minimum_distance = 0.4
         if (readings[1] < minimum_distance) and ( (readings[0] <= 40) or (readings[0]>= 320) ):
             #Emergência! Algo entrou no caminho!
-            print("Algo esta proximo demais! :o")
-            print("/t detectado ruindade em: "+str(readings))
+            print("algo esta proximo demais! :o")
+            #print("/t detectado ruindade em: "+str(readings))
 
 
             if readings[0] <= 40: # 45 graus fica a esquerda dele? então roda para a direita
@@ -46,22 +50,22 @@ class Movement:
             # else:
             #     self.move.publish(Twist(Vector3(0.1,0,0), Vector3(0,0,2))) # não é mais necessario,espero
 
-        elif (self.memap.triangle is None or self.memap.triangle.age >= 30 ):
+        elif (self.memap.triangle is None or self.memap.triangle.age >= 10 ):
             #Temos que procurar o triângulo!
             print("cadê triângulo? :c")
             self.move.publish(self.angular)
 
         else:
             #Achamos o triângulo!
-            print("Triângulo achado! ATACAR! >:3")
+            print("triângulo achado! ATACAR! >:3")
             pos= self.memap.triangle.center
             resolution= self.memap.resolution
             turnSpeed= 1.0
             mov= Twist(Vector3(0.5,0,0), Vector3(0,0,turnSpeed))
 
             distance = pos[0] - (resolution[0] / 2) #recebe x do objeto e vê se está a direita ou esquerda da tela
-            angular= -turnSpeed * (float(distance / (resolution[0] / 2)))
+            angular= turnSpeed * (float(distance / (resolution[0] / 2)))
             mov= Twist(Vector3(0.5,0,0), Vector3(0,0,angular))
 
-            #self.move.publish(mov)
-            self.move.publish(Twist(Vector3(1.0,0.0,0.0), Vector3(0.0,0.0,0.0)))
+            self.move.publish(mov)
+            #self.move.publish(Twist(Vector3(1.0,0.0,0.0), Vector3(0.0,0.0,0.0)))

@@ -22,7 +22,6 @@ class Detect:
             self.image_buffer.append(image)
             
     def recon(self):
-        print("LARANJA")
         if (len(self.image_buffer)==0):
             return
         #começar analisando da imagem mais recente, abortar se eu conseguir confirmação visual do que eu procuro
@@ -31,15 +30,14 @@ class Detect:
         still_work_to_do= True
         
         while(still_work_to_do and (len(self.image_buffer) != 0)):
-            print(len(self.image_buffer))
-            self.image_buffer=self.image_buffer[-1:]
+            self.channel_open=False
+            self.image_buffer=self.image_buffer[-3:]
             def scope():
         
                 src=self.image_buffer[-1]
-                cv2.resize(src, None,fx=0.5, fy=0.5, interpolation = cv2.INTER_AREA)
+                cv2.resize(src, None,fx=0.25, fy=0.25, interpolation = cv2.INTER_NEAREST)
                 src = cv2.GaussianBlur(src, (5, 5), 0)
                 self.image_buffer.pop(-1)
-                self.channel_open=False
             
                 reds= self.recon_target(src, "red")
                 if (len(reds) < 3): #versão do if para quando só uso vermelhos
@@ -141,20 +139,19 @@ class Detect:
         #        if ( ((src[i][j][color2int[color]]-20) <= src[i][j][(color2int[color]+1)%3]) or ((src[i][j][color2int[color]]-20) <= src[i][j][(color2int[color]+2)%3])):
         #            src[i][j][color2int[color]]= 0
 
-        ret, test= cv2.threshold(img, 150, 255, cv2.THRESH_BINARY)
-        ret, img= cv2.threshold(img, 150, 255, cv2.THRESH_BINARY) 
+        ret, img= cv2.threshold(img, 160, 255, cv2.THRESH_BINARY) 
 
         #limpa rmv1
         ret, rmv1= cv2.threshold(rmv1, 100, 255, cv2.THRESH_BINARY_INV)
-        ret, rmv1= cv2.threshold(rmv1, 1, 255, cv2.THRESH_TRUNC)
+        ret, rmv1= cv2.threshold(rmv1, 1, 255, cv2.THRESH_BINARY)
 
         #limpa rmv2
         ret, rmv2= cv2.threshold(rmv2, 100, 255, cv2.THRESH_BINARY_INV)
-        ret, rmv2= cv2.threshold(rmv2, 1, 255, cv2.THRESH_TRUNC)
+        ret, rmv2= cv2.threshold(rmv2, 1, 255, cv2.THRESH_BINARY)
 
-        for i in range(len(img)):
-            for j in range(len(img[i])):
-                img[i][j]*=rmv1[i][j]*rmv2[i][j]
+        img= cv2.bitwise_and(img, rmv1)
+        img= cv2.bitwise_and(img, rmv2)
+
         #depois setar valor mínimo embasado
 
         kernel= cv2.getStructuringElement(cv2.MORPH_RECT,(15,15))
@@ -200,8 +197,8 @@ class Detect:
 
 
     def update(self):
-        print("BANANA")
-        RENEW_AGE= 30
+        RENEW_AGE= 10
+        self.emergency_counter+=1
         #checar as imagens só se meu triângulo for velho?
         if (not (self.triangle is None)):
             self.triangle.update()
@@ -211,7 +208,7 @@ class Detect:
                 #mantém na memória o triângulo velho
         
                 self.recon()
-        else:
+        elif(self.emergency_counter%RENEW_AGE == 0):
             self.recon()
 
         self.memap.loadtriangle(self.triangle)
@@ -228,3 +225,4 @@ class Detect:
         self.triangle= None
         self.bridge = CvBridge()
         self.image_buffer= []
+        self.emergency_counter=0

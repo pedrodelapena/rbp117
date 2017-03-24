@@ -7,7 +7,7 @@ from movement import Movement
 from detect import Detect
 from memap import MemoryMap
 
-CYCLEDURATION=0.1 #trocar por algo embasado depois
+CYCLEDURATION=0.2 #trocar por algo embasado depois
 
 
 def cycle():
@@ -18,9 +18,9 @@ def cycle():
 
 			detect.update()
 			movement.update()
-
-			#dormir direito, calcular distancia gasto durante o ciclo basico e subtrair do tamanho do ciclo
 			rospy.sleep(CYCLEDURATION)
+			movement.stop()
+			
 
 	except rospy.ROSInterruptException:
 		print("Ocorreu uma exceção com o rospy")
