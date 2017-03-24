@@ -201,7 +201,7 @@ class Detect:
 
     def update(self):
         print("BANANA")
-        RENEW_AGE= 10
+        RENEW_AGE= 30
         #checar as imagens só se meu triângulo for velho?
         if (not (self.triangle is None)):
             self.triangle.update()

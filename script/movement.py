@@ -9,7 +9,7 @@ class Movement:
     
         self.move= rospy.Publisher("/cmd_vel", Twist, queue_size = 1) #entender bem esta linha
         self.speed= Twist(Vector3(0.5,0,0), Vector3(0,0,0))
-        self.angular= Twist(Vector3(0,0,0), Vector3(0,0,0.01))
+        self.angular= Twist(Vector3(0,0,0), Vector3(0,0,1))
         self.memap= memap
         self.laser= Laser()
         #self.abort_and_survive
@@ -46,7 +46,7 @@ class Movement:
             # else:
             #     self.move.publish(Twist(Vector3(0.1,0,0), Vector3(0,0,2))) # não é mais necessario,espero
 
-        elif (self.memap.triangle is None or self.memap.triangle.age >= 10 ):
+        elif (self.memap.triangle is None or self.memap.triangle.age >= 30 ):
             #Temos que procurar o triângulo!
             print("cadê triângulo? :c")
             self.move.publish(self.angular)

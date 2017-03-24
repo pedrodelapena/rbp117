@@ -10,19 +10,21 @@ from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
+
 from triangle import Triangle
 
 import itertools
 
+from memap import MemoryMap
+import time
 class Detect:
 
-    def capture(self, image):
-        if self.channel_open:
-            image= self.bridge.imgmsg_to_cv2(image, "bgr8")
-            self.image_buffer.append(image)
+    def capture(self):
+        ret, image = self.cap.read()
+        self.image_buffer.append(image)
             
     def recon(self):
-        print("LARANJA")
+        
         if (len(self.image_buffer)==0):
             return
         #começar analisando da imagem mais recente, abortar se eu conseguir confirmação visual do que eu procuro
@@ -31,15 +33,12 @@ class Detect:
         still_work_to_do= True
         
         while(still_work_to_do and (len(self.image_buffer) != 0)):
-            print(len(self.image_buffer))
             self.image_buffer=self.image_buffer[-1:]
             def scope():
-        
+                
                 src=self.image_buffer[-1]
                 cv2.resize(src, None,fx=0.5, fy=0.5, interpolation = cv2.INTER_AREA)
                 src = cv2.GaussianBlur(src, (5, 5), 0)
-                self.image_buffer.pop(-1)
-                self.channel_open=False
             
                 reds= self.recon_target(src, "red")
                 if (len(reds) < 3): #versão do if para quando só uso vermelhos
@@ -71,14 +70,13 @@ class Detect:
             
             if (exit_code==0):
                 True
-                print("Triângulo encontrado!")
                 #recon_debug(self.image_buffer[-1], self.Triangle)
             else:
                 print("Nenhum triângulo encontrado, código "+str(exit_code))
 
             #self.recon_debug(self.image_buffer[-1], self.triangle)
-            
-        self.channel_open=True          
+            self.image_buffer.pop(-1)
+                    
         self.image_buffer=[]
         
     def double_values(self, lst):
@@ -90,7 +88,7 @@ class Detect:
     def find_right_angled_triangles(self, alpha, beta, gamma):
          
         tolerance= 0.1
-        
+
         triangles=[]
         for a in range(len(alpha)):
             ax, ay= alpha[a]
@@ -141,6 +139,7 @@ class Detect:
         #        if ( ((src[i][j][color2int[color]]-20) <= src[i][j][(color2int[color]+1)%3]) or ((src[i][j][color2int[color]]-20) <= src[i][j][(color2int[color]+2)%3])):
         #            src[i][j][color2int[color]]= 0
 
+
         ret, test= cv2.threshold(img, 150, 255, cv2.THRESH_BINARY)
         ret, img= cv2.threshold(img, 150, 255, cv2.THRESH_BINARY) 
 
@@ -157,10 +156,10 @@ class Detect:
                 img[i][j]*=rmv1[i][j]*rmv2[i][j]
         #depois setar valor mínimo embasado
 
-        kernel= cv2.getStructuringElement(cv2.MORPH_RECT,(15,15))
+        kernel= cv2.getStructuringElement(cv2.MORPH_RECT,(15, 15))
         #posso alterar o kernel se achar que isso melhore minha detecção
         img= cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
-
+        
         contours, hier= cv2.findContours(img.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)   
         #contours= contours[0]
         #Tomar cuidado com essa linha, fiz ela seguindo o pyimagesearch mas n'ao estou certo dela
@@ -182,7 +181,13 @@ class Detect:
             y/=len(shape)
             centers.append((x, y))
 
-
+        ###DEBUG
+        #for center in centers:
+        #    cv2.circle(img, center, 10, [0,127,255], 5)
+        #
+        #cv2.imshow("Debug: Detect.recon", img)
+        #
+        ###DEBUG
         return centers
 
     def recon_debug(self, img, triangle):
@@ -195,13 +200,15 @@ class Detect:
 
 
         cv2.imshow("Debug: Detect.recon", img)
+        #cv2.waitKey(1)
         #para me mostrar um feed constante, waitkey deve ser zero?
         #lembrar de comentar ambas essas linhas para o release final
 
 
     def update(self):
-        print("BANANA")
-        RENEW_AGE= 10
+        print("LIFE")
+        self.recon_debug(self.image_buffer[-1], self.triangle)
+        RENEW_AGE= 30
         #checar as imagens só se meu triângulo for velho?
         if (not (self.triangle is None)):
             self.triangle.update()
@@ -220,11 +227,26 @@ class Detect:
 
     def __init__(self, memap):
 
-        rospy.Subscriber("/camera/image_raw", Image, self.capture, queue_size=10, buff_size = 2**24)
-        ## é possível que queue_size e buff_size possam ser alterados para valores melhores
+        self.cap = cv2.VideoCapture(0)
+        self.cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 640)
+        self.cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 480)
 
-        self.channel_open=True
         self.memap= memap
         self.triangle= None
         self.bridge = CvBridge()
         self.image_buffer= []
+
+
+#main
+memap=MemoryMap()
+detect= Detect(memap)
+keepOn= True
+while(keepOn):
+    detect.capture()
+    detect.update()
+
+    keepOn= not(cv2.waitKey(1) & 0xFF == ord('q'))
+    #time.sleep(0.1)
+
+cap.release()
+cv2.destroyAllWindows()
