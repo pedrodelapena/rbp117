@@ -30,14 +30,14 @@ class Movement:
             print("/t detectado ruindade em: "+str(readings))
 
 
-            if readings[0] <= 45 : # 45 graus fica a esquerda dele? então roda para a direita
+            if readings[0] <= 40 : # 45 graus fica a esquerda dele? então roda para a direita
                 print("objeto a esquerda manobras evasivas para a direita!")
-                self.move.publish(Twist(Vector3(-0.5,0,0), Vector3(0,0,1)))
+                self.move.publish(Twist(Vector3(-0.05,0,0), Vector3(0,0,0.8)))
 
 
-            elif readings[0]>= 315: # 315 graus fica a direita dele? então ele roda para a esquerda
+            elif readings[0]>= 320: # 315 graus fica a direita dele? então ele roda para a esquerda
                 print("objeto a direita manobras evasivas para a esquerda!")
-            	self.move.publish(Twist(Vector3(-0.5,0,0), Vector3(0,0,-1)))
+            	self.move.publish(Twist(Vector3(-0.05,0,0), Vector3(0,0,-0.8)))
 
             # else:
             #     self.move.publish(Twist(Vector3(0.1,0,0), Vector3(0,0,2))) # não é mais necessario,espero.
@@ -55,7 +55,7 @@ class Movement:
             pos= self.memap.triangle.center
             resolution= self.memap.resolution
             turnSpeed= 2.2
-            mov= Twist(Vector3(0.5,0,0), Vector3(0,0,2.2))
+            mov= Twist(Vector3(0.5,0,0), Vector3(0,0,turnSpeed))
 
             distance = pos[0] - (resolution[0] / 2) #recebe x do objeto e vê se está a direita ou esquerda da tela
             angular= -turnSpeed * (float(distance / (resolution[0] / 2)))
