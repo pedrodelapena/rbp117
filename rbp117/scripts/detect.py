@@ -17,11 +17,12 @@ import itertools
 class Detect:
 
     def capture(self, image):
-        image= self.bridge.imgmsg_to_cv2(image, "bgr8")
-        self.image_buffer.append(image)
+        if self.channel_open:
+            image= self.bridge.imgmsg_to_cv2(image, "bgr8")
+            self.image_buffer.append(image)
             
     def recon(self):
-        
+        print("LARANJA")
         if (len(self.image_buffer)==0):
             return
         #começar analisando da imagem mais recente, abortar se eu conseguir confirmação visual do que eu procuro
@@ -30,11 +31,15 @@ class Detect:
         still_work_to_do= True
         
         while(still_work_to_do and (len(self.image_buffer) != 0)):
+            print(len(self.image_buffer))
+            self.image_buffer=self.image_buffer[-1:]
             def scope():
         
                 src=self.image_buffer[-1]
                 cv2.resize(src, None,fx=0.5, fy=0.5, interpolation = cv2.INTER_AREA)
                 src = cv2.GaussianBlur(src, (5, 5), 0)
+                self.image_buffer.pop(-1)
+                self.channel_open=False
             
                 reds= self.recon_target(src, "red")
                 if (len(reds) < 3): #versão do if para quando só uso vermelhos
@@ -66,13 +71,14 @@ class Detect:
             
             if (exit_code==0):
                 True
+                print("Triângulo encontrado!")
                 #recon_debug(self.image_buffer[-1], self.Triangle)
             else:
                 print("Nenhum triângulo encontrado, código "+str(exit_code))
 
             #self.recon_debug(self.image_buffer[-1], self.triangle)
-            self.image_buffer.pop(-1)
-                    
+            
+        self.channel_open=True          
         self.image_buffer=[]
         
     def double_values(self, lst):
@@ -194,6 +200,7 @@ class Detect:
 
 
     def update(self):
+        print("BANANA")
         RENEW_AGE= 30
         #checar as imagens só se meu triângulo for velho?
         if (not (self.triangle is None)):
@@ -215,10 +222,8 @@ class Detect:
 
         rospy.Subscriber("/camera/image_raw", Image, self.capture, queue_size=10, buff_size = 2**24)
         ## é possível que queue_size e buff_size possam ser alterados para valores melhores
-        self.cap = cv2.VideoCapture(0)
-        self.cap.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, 640)
-        self.cap.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, 480)
 
+        self.channel_open=True
         self.memap= memap
         self.triangle= None
         self.bridge = CvBridge()
